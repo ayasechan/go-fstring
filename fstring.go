@@ -8,7 +8,7 @@ import (
 
 type M map[string]string
 
-func WithMap(reader io.Reader, m M) (io.Reader, error) {
+func WithMapDefault(reader io.Reader, m M, defaultFn func(key string) string) (io.Reader, error) {
 	t := new(Template)
 	err := t.Compile(reader)
 	if err != nil {
@@ -21,12 +21,16 @@ func WithMap(reader io.Reader, m M) (io.Reader, error) {
 				key := keys[i]
 				v, ok := m[strings.Trim(key, " ")]
 				if !ok {
-					v = fmt.Sprintf("{%s}", key)
+					v = defaultFn(key)
 				}
 				fmt.Fprint(w, v)
 			}
 		}
 	}), nil
+}
+
+func WithMap(reader io.Reader, m M) (io.Reader, error) {
+	return WithMapDefault(reader, m, func(key string) string { return fmt.Sprintf("{%s}", key) })
 }
 
 func FString(template string, m M) string {
