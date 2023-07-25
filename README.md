@@ -1,5 +1,5 @@
 
-# fsting
+# go-fstring
 
 Simple, loose string interpolation.
 
