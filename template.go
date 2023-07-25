@@ -15,10 +15,13 @@ type Template struct {
 func NewTemplate() *Template {
 	return new(Template)
 }
-func (t *Template) WithFunc(f func(raws, keys []string, w io.Writer)) io.Reader {
-	buf := new(bytes.Buffer)
-	f(t.Raws(), t.Keys(), buf)
-	return buf
+func (t *Template) WithFunc(f func(raws, keys []string, w io.Writer)) io.ReadCloser {
+	pr, pw := io.Pipe()
+	go func() {
+		f(t.Raws(), t.Keys(), pw)
+		defer pw.Close()
+	}()
+	return pr
 }
 
 func (t *Template) Raws() []string {

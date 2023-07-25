@@ -8,7 +8,7 @@ import (
 
 type M map[string]string
 
-func WithMapDefault(reader io.Reader, m M, defaultFn func(key string) string) (io.Reader, error) {
+func WithMapDefault(reader io.Reader, m M, defaultFn func(key string) string) (io.ReadCloser, error) {
 	t := new(Template)
 	err := t.Compile(reader)
 	if err != nil {
@@ -29,7 +29,7 @@ func WithMapDefault(reader io.Reader, m M, defaultFn func(key string) string) (i
 	}), nil
 }
 
-func WithMap(reader io.Reader, m M) (io.Reader, error) {
+func WithMap(reader io.Reader, m M) (io.ReadCloser, error) {
 	return WithMapDefault(reader, m, func(key string) string { return fmt.Sprintf("{%s}", key) })
 }
 
@@ -38,6 +38,7 @@ func FString(template string, m M) string {
 	if err != nil {
 		panic(err)
 	}
+	defer r.Close()
 	buf, err := io.ReadAll(r)
 	if err != nil {
 		panic(err)
