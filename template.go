@@ -18,8 +18,8 @@ func NewTemplate() *Template {
 func (t *Template) WithFunc(f func(raws, keys []string, w io.Writer)) io.ReadCloser {
 	pr, pw := io.Pipe()
 	go func() {
-		f(t.Raws(), t.Keys(), pw)
 		defer pw.Close()
+		f(t.Raws(), t.Keys(), pw)
 	}()
 	return pr
 }
